@@ -59,5 +59,15 @@ seed taxonomy
 - 爬虫：Crawlee、Playwright、Scrapy，按来源复杂度选择。
 - Agent 编排：LangChain、Pydantic AI、Agno 或轻量自研 planner。
 - 结构校验：Pydantic / JSON Schema。
+- 结构化抽取：LangExtract 或同类 source-grounded extractor，保存字段与原文 span。
+- 主题建模：BERTopic 起步，按周/月使用 topics-over-time 追踪近半年主题迁移。
 - 分析存储：DuckDB 起步，Postgres + pgvector 或 ClickHouse 进入规模化。
 - 报告：Notebook、Metabase、Superset 或静态 Markdown 报告。
+
+## 可选扩展
+
+- `research_reporter`：使用 GPT Researcher 风格的检索增强研究报告生成周报/月报。
+- `topic_deep_dive`：当 BERTopic 发现异常主题时，用 STORM 风格多视角提问做专题深挖。
+- `survey_trigger`：用 Formbricks 对自有用户或许可样本发起定向问卷，验证公开舆情假设。
+- `product_analytics`：如果后续建设内部仪表板或标注平台，再接入 PostHog/OpenReplay 监测产品体验。
+- `voice_ingestion`：仅在拥有合法授权的访谈或客服音频场景中接入 ASR，例如 VibeVoice。

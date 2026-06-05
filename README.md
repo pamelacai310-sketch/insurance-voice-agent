@@ -52,6 +52,7 @@ pytest
 ## 文档入口
 
 - [AI agent 实现调研](docs/ai-agent-research.md)
+- [消费者智能方法接入研究](docs/method-integration-study.md)
 - [系统架构](docs/architecture.md)
 - [数据 Schema](docs/data-schema.md)
 - [来源策略](docs/source-strategy.md)
