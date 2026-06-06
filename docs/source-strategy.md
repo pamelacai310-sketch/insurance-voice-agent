@@ -10,6 +10,7 @@
 
 | 类型 | 示例 | 优先采集方式 | 风险 |
 | --- | --- | --- | --- |
+| 30 天实时平台信号 | Reddit、X/Twitter、YouTube、TikTok、Hacker News、Polymarket、GitHub、Web；微博、小红书、B站、知乎、抖音、微信公众号、百度、今日头条 | `last30days-skill` / `last30days-skill-cn` 作为前置研究技能 | 输出是候选信号和引用摘要，不是原始评论主库 |
 | 搜索结果 | Google/Bing/站内搜索结果 | 搜索 API 或合规搜索连接器 | 搜索结果非评论，需要二次抽取 |
 | 论坛/社区 | Reddit、豆瓣小组、贴吧、行业论坛 | API 或 HTML crawler | 登录、反爬、删除帖 |
 | 问答平台 | Quora、知乎类问答 | API/HTML/browser fallback | 长答案和评论需区分 |
@@ -59,6 +60,8 @@
 
 ## 覆盖指标
 
+- 近 30 天实时信号数
+- 实时信号提升为半年采集任务的比例
 - 每周新增来源数
 - 每个平台有效评论数
 - 每个保险品类评论数
@@ -69,8 +72,25 @@
 
 ## 接入优先级
 
-1. 有官方 API 或稳定导出接口的来源。
-2. 公开 HTML 且 robots/ToS 允许的来源。
-3. 有成熟第三方 Actor/API 的复杂平台。
-4. Browser agent fallback。
-5. 暂缓：需要登录、强隐私、强反爬、明确禁止自动采集的来源。
+1. 近 30 天实时脉冲：使用 `last30days-skill` 和 `last30days-skill-cn` 发现高互动主题、竞品对比和新兴来源。
+2. 有官方 API 或稳定导出接口的来源。
+3. 公开 HTML 且 robots/ToS 允许的来源。
+4. 有成熟第三方 Actor/API 的复杂平台。
+5. Browser agent fallback。
+6. 暂缓：需要登录、强隐私、强反爬、明确禁止自动采集的来源。
+
+## 30 天实时脉冲
+
+`last30days-skill` 覆盖 Reddit、X/Twitter、YouTube、TikTok、Hacker News、Polymarket、GitHub 和 Web 等全球平台。适合用于：
+
+- 发现最近 30 天保险理赔、拒赔、退保、续保、代理人争议等高互动话题。
+- 比较保险公司、保险产品、销售渠道、代理平台和服务体验竞品。
+- 捕捉由 Reddit upvotes、X likes、YouTube transcripts、TikTok engagement、Polymarket volume 等参与度信号加权的社区观点。
+
+`last30days-skill-cn` 作为中国市场试点来源，覆盖微博、小红书、B站、知乎、抖音、微信公众号、百度、今日头条等平台。适合用于：
+
+- 发现中文互联网近 30 天保险口碑、投诉、购买决策和理赔体验热点。
+- 按小红书赞藏评转、B站播放/弹幕/投币、抖音互动、知乎回答质量等多维参与度做优先级排序。
+- 为半年主库生成更准确的中文关键词、平台线索和竞品对比任务。
+
+互动指标只用于排序、优先级和信号强度判断，不直接等同于事实真实性。所有被提升为采集任务的实时信号，必须重新经过来源可追溯、时间窗口归一化、去重、PII 检查和人工抽样。

@@ -22,6 +22,7 @@
 
 - 对可通过 API 或稳定 HTML 获取的站点，优先使用确定性采集器。
 - 对动态页面、评论折叠、分页、站内搜索等复杂交互，使用 browser agent 作为兜底。
+- 在近半年主库之外增加“30 天实时脉冲”前置层：`last30days-skill` 和 `last30days-skill-cn` 用于发现近期热点、竞品对比、平台信号和高互动用户之声，但不直接替代主采集链路。
 - LLM agent 主要负责查询规划、页面结构理解、评论块抽取、主题/情感/方面标签，而不是直接替代所有爬虫逻辑。
 - 所有抽取结果必须进入结构化 schema 校验、去重、时间窗口过滤、PII 脱敏和人工抽样审计。
 - 采集队列必须有持久化状态，支持增量抓取、失败重试、限速和来源覆盖统计。
@@ -29,8 +30,10 @@
 ## 推荐流水线
 
 ```text
-source planner
+last30days pulse
+  -> candidate signals
   -> compliance gate
+  -> source planner
   -> persistent frontier queue
   -> API / crawler / browser collectors
   -> comment extractor

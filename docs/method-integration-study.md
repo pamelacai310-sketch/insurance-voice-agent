@@ -4,13 +4,13 @@
 
 问题：用户提供的“市场智能、舆情监测与用户体验研究”方法中，哪些可以结合到 `insurance-voice-agent`，以及应放在项目的哪个阶段。
 
-结论先行：本项目的核心目标是近半年公开保险评论采集、结构化抽取、主题/情感分析和可追溯报告。因此最值得立即接入的是 `LangExtract`、`BERTopic`、受合规约束的 `ScrapeGraphAI/Markdownify` 思路、结构化提示约束、可替换模型路由，以及 `GPT Researcher` 风格的定期研究报告。`Formbricks`、`PostHog/OpenReplay`、`Qwen2.5-VL` 可以作为第二阶段扩展。`VibeVoice` 和 `WebGazer.js` 只适合特定 VoC/UX 子项目，不应进入当前主干采集链路。
+结论先行：本项目的核心目标是近半年公开保险评论采集、结构化抽取、主题/情感分析和可追溯报告。因此最值得立即接入的是 `last30days-skill` / `last30days-skill-cn` 的 30 天实时脉冲层、`LangExtract`、`BERTopic`、受合规约束的 `ScrapeGraphAI/Markdownify` 思路、结构化提示约束、可替换模型路由，以及 `GPT Researcher` 风格的定期研究报告。`Formbricks`、`PostHog/OpenReplay`、`Qwen2.5-VL` 可以作为第二阶段扩展。`VibeVoice` 和 `WebGazer.js` 只适合特定 VoC/UX 子项目，不应进入当前主干采集链路。
 
 ## 采用分级
 
 | 分级 | 方法 | 结论 |
 | --- | --- | --- |
-| 立即采用 | LangExtract、BERTopic、结构化提示约束、模型路由、ScrapeGraphAI 的 Markdown/结构化抽取思路 | 直接增强评论抽取、证据定位、主题发现和报告可信度。 |
+| 立即采用 | last30days-skill、last30days-skill-cn、LangExtract、BERTopic、结构化提示约束、模型路由、ScrapeGraphAI 的 Markdown/结构化抽取思路 | 直接增强实时发现、评论抽取、证据定位、主题发现和报告可信度。 |
 | 近期试点 | GPT Researcher、STORM/Co-STORM、Qwen2.5-VL、Formbricks、n8n | 适合做报告生成、深度专题研究、视觉证据、主动问卷和外部编排。 |
 | 后续扩展 | PostHog、OpenReplay、VibeVoice | 取决于项目是否建设用户端产品、内部研究平台或接入客服音频。 |
 | 暂不接入 | WebGazer.js、商业 SaaS 型 Buska/Brand24/BuzzSumo/Octolens 作为核心依赖 | 与当前“公开评论监测”目标不直接匹配；可作为竞品能力参照。 |
@@ -27,6 +27,8 @@
 | 结构化提示工程 | `prompts/`、`reporter`、`qa_auditor` | 强制输出 `[Missing]`、`[Stale]`、`[Assumption]`，降低报告幻觉；特别适合保险监管和产品条款场景。 | 需要版本化 prompt，且输出仍需 schema 校验。 | 立即采用，并纳入 QA 评估。 |
 | ScrapeGraphAI / SmartScraper / Markdownify | `collector_fallback`、`parser` | 对动态或结构混乱页面，先转 Markdown 或结构化 JSON，再交给抽取器，可减少手写解析规则。 | API 成本和外部依赖；报告中提到的 stealth/绕过检测做法不可采用。 | 只采用“公开页面清洗和结构化抽取”能力，禁止绕过访问控制。 |
 | n8n | `orchestration`、`alerting` | 可用定时任务、Slack/邮件/表格节点快速搭建舆情预警和人工复核流程。 | 不应替代核心 Python 数据管道；工作流版本管理要额外治理。 | 可作为部署层可选项，不进入核心库依赖。 |
+| last30days-skill | `real_time_signal_probe`、`comparative_pulse_report` | 并行研究 Reddit、X/Twitter、YouTube、TikTok、Hacker News、Polymarket、GitHub、Web 等近 30 天公开讨论，按互动指标生成带引用的实时舆情和竞品对比信号。 | 输出是候选信号和综合摘要，不是完整评论主库；部分平台依赖 API key、浏览器会话或外部服务。 | 立即采用为 30 天实时脉冲层，结果必须经合规门和主采集链路验证后才可沉淀。 |
+| last30days-skill-cn | `real_time_signal_probe_cn`、`china_market_signal_probe` | 覆盖微博、小红书、B站、知乎、抖音、微信公众号、百度、今日头条等中文平台，适合中国市场保险口碑、投诉、竞品和购买决策热点发现。 | 中文平台访问规则差异大，cookie/session 或爬虫模式必须单独审批；互动指标容易受平台机制影响。 | 中国市场优先试点来源，优先官方 API 或允许的公开页面。 |
 | BERTopic | `topic_modeler`、`trend_detector` | 把大量保险评论聚类为可解释主题，并用 topics-over-time 跟踪近半年主题变化。 | 中文 embedding、短文本噪声、聚类稳定性需要调参和抽样审计。 | 立即采用，作为第一阶段核心分析模块。 |
 | Formbricks | `survey_trigger`、`active_voc` | 当公开评论发现异常主题后，向自有用户或研究样本发定向问卷，验证原因。 | 只适合自有用户/许可样本，不能用于抓取公开评论。 | 二阶段接入，形成“被动舆情 -> 主动问卷”闭环。 |
 | VibeVoice | `voice_ingestion` | 如果后续接入客服录音或访谈音频，可把语音转文字再进入同一套抽取/主题模型。 | 当前项目没有音频源；客服录音通常涉及高敏个人信息和同意管理。 | 后续扩展，不进入当前 MVP。 |
@@ -40,8 +42,10 @@
 
 ```text
 seed taxonomy
-  -> source planner
+  -> last30days pulse
+  -> candidate signals
   -> compliance gate
+  -> source planner
   -> frontier queue
   -> collectors
        -> api / crawlee / playwright
@@ -70,6 +74,8 @@ seed taxonomy
 
 目标：先把“公开文本评论”做准。
 
+- 增加 `real_time_signal_probe` 路线图：用 `last30days-skill` 和 `last30days-skill-cn` 发现最近 30 天保险热点、竞品对比、平台信号和高互动用户之声。
+- 定义 `SignalPromotionPolicy`：实时信号进入近半年主库前必须通过来源可追溯、时间过滤、去重、PII 检查和人工抽样。
 - 增加 `model_router`：支持 OpenAI-compatible API、本地 Ollama/vLLM、云端 provider。
 - 增加 `grounded_extractor`：以 `LangExtract` 或同类 span grounding 方式输出 `InsuranceMention`。
 - 增加 prompt 合同：所有报告必须显式标记 `[Missing]`、`[Stale]`、`[Assumption]`。
@@ -109,6 +115,16 @@ seed taxonomy
 - 将 WebGazer.js 这类生物特征采集工具默认嵌入公开产品。
 - 把商业 SaaS 抓取结果与自采公开评论混在同一来源类型中，导致来源不可追溯。
 - 把 GPT Researcher/STORM 的综合推断当作用户原始评论。
+- 把 `last30days` 的互动权重当作事实结论，或未经验证直接写入近半年主库。
+
+## 30 天脉冲预留对象
+
+| 对象 | 类型 | 用途 |
+| --- | --- | --- |
+| `RealTimeSignalProbe` | Workflow config | 一次 30 天实时研究任务，记录查询词、平台范围、运行时间和输出路径。 |
+| `RealTimeSignal` | Schema | 单个平台或来源返回的候选信号，包含 topic、platform、source_url、published_at、observed_at、engagement_metrics、summary、citations。 |
+| `ComparativePulseReport` | Schema | 竞品对比输出，包含 competitors、strengths、weaknesses、source_counts、engagement_weighted_findings。 |
+| `SignalPromotionPolicy` | Policy config | 定义哪些实时信号可进入近半年主库，以及验证、脱敏和审计要求。 |
 
 ## 需要新增的工程对象
 
@@ -140,3 +156,5 @@ seed taxonomy
 - Qwen3-235B-A22B-Instruct-2507 model card: https://huggingface.co/Qwen/Qwen3-235B-A22B-Instruct-2507
 - Qwen2.5-VL-72B-Instruct model card: https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct
 - DeepSeek-V3 GitHub: https://github.com/deepseek-ai/DeepSeek-V3
+- last30days-skill GitHub: https://github.com/mvanhorn/last30days-skill
+- last30days-skill-cn GitHub: https://github.com/Jesseovo/last30days-skill-cn
